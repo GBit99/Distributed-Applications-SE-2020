@@ -1,0 +1,47 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+
+namespace MC.Data
+{
+    public class BaseRepository<TEntity> where TEntity : class, new()
+    {
+        private readonly MovieCatalogDbContext dbContext;
+
+        public BaseRepository(MovieCatalogDbContext dbContext)
+        {
+            this.dbContext = dbContext;
+            Entities = dbContext.Set<TEntity>();
+        }
+
+        protected DbSet<TEntity> Entities { get; private set; }
+
+        public virtual IEnumerable<TEntity> GetAll()
+        {
+            return Entities.ToList();
+        }
+
+        public virtual TEntity GetById(int id)
+        {
+            return Entities.Find(id);
+        }
+
+        public virtual TEntity Create(TEntity entity)
+        {
+            Entities.Add(entity);
+
+            return entity;
+        }
+
+        public virtual void Update(TEntity entity)
+        {
+            Entities.Attach(entity);
+            dbContext.Entry(entity).State = EntityState.Modified;
+        }
+
+        public virtual void Delete(TEntity entity)
+        {
+            Entities.Remove(entity);
+        }
+    }
+}
